@@ -1,4 +1,4 @@
-name: Build Maritime  APK
+nametu-latest: Build Maritime  APK
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on:ubuntu-10.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
