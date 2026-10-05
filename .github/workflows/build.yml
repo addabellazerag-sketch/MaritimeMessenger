@@ -1,4 +1,4 @@
-name: Build Maritime  APK
+name: Build Maritime APK
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
 
 jobs:
   build:
-    runs-on:ubuntu-22.04
+    runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -17,27 +18,16 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.2'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      - name: Configure Gradle Properties and Memory
-        run: |
-          echo "android.useAndroidX=true" >> gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
-          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError" >> gradle.properties
-          echo "org.gradle.daemon=false" >> gradle.properties
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug
 
-      - name: Accept Licenses
-        run: yes | sdkmanager --licenses || true
-
-      - name: Build APK
-        run: gradle assembleDebug --no-daemon --stacktrace -x test -x lint
-
-      - name: Upload APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: MaritimeMessenger-Debug-APK
-          path: "**/build/outputs/apk/**/*.apk"
+          path: app/build/outputs/apk/debug/app-debug.apk
