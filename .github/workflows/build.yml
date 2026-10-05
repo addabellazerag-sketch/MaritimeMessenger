@@ -1,0 +1,50 @@
+name: Build Maritime APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant Execute Permission for Gradlew
+      run: |
+        if [ -f "./gradlew" ]; then chmod +x ./gradlew; fi
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.2'
+
+    - name: Accept Android Licenses
+      run: |
+        yes | sdkmanager --licenses || true
+
+    - name: Build Debug APK
+      run: |
+        if [ -f "./gradlew" ]; then
+          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx2048m" -x lint -x test
+        else
+          gradle assembleDebug --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx2048m" -x lint -x test
+        fi
+        find . -name "*.apk"
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: MaritimeMessenger-Debug-APK
+        path: "**/build/outputs/apk/**/*.apk"
+        if-no-files-found: error
