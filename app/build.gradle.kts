@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.maritime.satellitemessenger"
-        minSdk = 31
+        minSdk = 26 هههه
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
