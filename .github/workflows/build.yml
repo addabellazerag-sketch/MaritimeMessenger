@@ -1,4 +1,4 @@
-nametu-latest: Build Maritime  APK
+name: Build Maritime  APK
 
 on:
   push:
