@@ -19,21 +19,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Fix gradlew and Build APK
+      - name: Build APK with System Gradle
         run: |
-          # 1. إزالة السطر المعطوب من ملف gradlew نفسه
-          sed -i 's/DEFAULT_JVM_OPTS=.*/DEFAULT_JVM_OPTS=""/g' gradlew
-          sed -i 's/\r$//' gradlew
-          
-          # 2. تفريغ متغيرات البيئة
           unset JAVA_TOOL_OPTIONS
-          unset _JAVA_OPTIONS
-          
-          # 3. بدء تجميع الـ APK بذاكرة 2 جيجابايت نظيفة
-          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
+          gradle assembleDebug --no-daemon
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
