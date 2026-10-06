@@ -8,18 +8,32 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/cirruslabs/android-sdk:34
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Fix gradlew and Build APK
+        run: |
+          # 1. إزالة السطر المعطوب من ملف gradlew نفسه
+          sed -i 's/DEFAULT_JVM_OPTS=.*/DEFAULT_JVM_OPTS=""/g' gradlew
+          sed -i 's/\r$//' gradlew
+          
+          # 2. تفريغ متغيرات البيئة
+          unset JAVA_TOOL_OPTIONS
+          unset _JAVA_OPTIONS
+          
+          # 3. بدء تجميع الـ APK بذاكرة 2 جيجابايت نظيفة
+          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
