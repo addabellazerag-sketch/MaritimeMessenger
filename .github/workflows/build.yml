@@ -24,9 +24,10 @@ jobs:
 
       - name: Build with Gradle
         run: |
+          sed -i '/org.gradle.jvmargs/d' gradle.properties 2>/dev/null || true
           unset JAVA_TOOL_OPTIONS
-          export _JAVA_OPTIONS="-Xmx2048m"
-          ./gradlew assembleDebug --no-daemon
+          export JAVA_TOOL_OPTIONS=""
+          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
