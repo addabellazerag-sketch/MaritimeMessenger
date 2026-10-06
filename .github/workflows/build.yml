@@ -13,46 +13,55 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      # 1. تحميل المشروع
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. إعداد Java 17
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
-      # 3. إعطاء صلاحية التنفيذ لـ Gradle
-      - name: Make Gradle executable
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
         run: |
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-          else
-            echo "ERROR: gradlew غير موجود في جذر المشروع"
-            exit 1
-          fi
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
 
-      # 4. تنظيف المشروع
-      - name: Clean project
-        run: ./gradlew clean
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2'
 
-      # 5. بناء APK Debug
-      - name: Build APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Check project
+        run: |
+          echo "Java:"
+          java -version
 
-      # 6. البحث عن ملف APK
+          echo "Gradle:"
+          gradle --version
+
+          echo "Project files:"
+          ls -la
+
+          echo "App files:"
+          ls -la app
+
+      - name: Build Debug APK
+        run: |
+          gradle assembleDebug --stacktrace --no-daemon
+
       - name: Find APK
         run: |
-          echo "APK files:"
+          echo "Generated APK files:"
           find . -type f -name "*.apk" -print
 
-      # 7. رفع APK كـ Artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MaritimeMessenger-APK
-          path: "**/build/outputs/apk/**/*.apk"
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
