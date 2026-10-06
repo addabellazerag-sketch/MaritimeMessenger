@@ -22,12 +22,20 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
+      - name: Clean Environment and Build
         run: |
-          sed -i '/org.gradle.jvmargs/d' gradle.properties 2>/dev/null || true
+          # مسح أي خيارات ذاكرة قديمة ومعطوبة من جميع ملفات المشروع
+          find . -name "*.properties" -exec sed -i '/jvmargs/d' {} + || true
+          find . -name "*.properties" -exec sed -i '/Xmx/d' {} + || true
+          
+          # تفريغ متغيرات البيئة تماماً
           unset JAVA_TOOL_OPTIONS
+          unset _JAVA_OPTIONS
           export JAVA_TOOL_OPTIONS=""
-          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
+          export _JAVA_OPTIONS=""
+          
+          # تشغيل البناء مع تمرير ذاكرة نظيفة بدون علامات تنصيص مشوهة
+          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs=-Xmx2048m
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
