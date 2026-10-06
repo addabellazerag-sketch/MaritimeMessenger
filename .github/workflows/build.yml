@@ -24,13 +24,13 @@ jobs:
         with:
           gradle-version: "8.5"
 
-      - name: Build APK with Gradle
+      - name: Build Debug APK
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
         run: |
           unset JAVA_TOOL_OPTIONS
           unset _JAVA_OPTIONS
-          gradle assembleDebug --no-daemon -x lint -x test
+          gradle assembleDebug --no-daemon --refresh-dependencies --stacktrace -x lint -x test
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
