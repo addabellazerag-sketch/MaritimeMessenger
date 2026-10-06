@@ -40,7 +40,7 @@ jobs:
           export _JAVA_OPTIONS=""
 
           # 3. تشغيل البناء الرسمي بذاكرة نظيفة
-          gradle assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m" -x lint -x test
+          gradle assembleDebug --no-daemon -org.gradle.jvmargs=-Xmx2048m -x lint -x test
 
       - name: Verify APK Output
         run: ls -lh app/build/outputs/apk/debug/app-debug.apk
